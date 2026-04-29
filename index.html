@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sound Sculpture Player</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050508;--fg:#f0ede8;--acc:#ff3c00;--acc2:#00d4ff;
+  --muted:rgba(240,237,232,0.35);--surface:rgba(240,237,232,0.05);
+  --border:rgba(240,237,232,0.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:'DM Mono',monospace}
+
+/* BACK */
+.back{position:fixed;top:24px;left:24px;z-index:200;display:flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s}
+.back:hover{color:var(--fg)}
+.back svg{width:16px;height:16px}
+
+/* TITLE */
+.title{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;text-align:center}
+.title h1{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.3em;color:rgba(240,237,232,0.12)}
+
+/* CANVAS */
+#canvas{display:block;width:100vw;height:100vh}
+
+/* UPLOAD OVERLAY */
+#upload-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(5,5,8,0.92);backdrop-filter:blur(8px)}
+.upload-box{border:1px solid var(--border);border-radius:4px;padding:3.5rem 4.5rem;text-align:center;max-width:480px;width:90%;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.upload-box::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,60,0,0.05),transparent,rgba(0,212,255,0.05));opacity:0;transition:opacity 0.3s}
+.upload-box:hover::before,.upload-box.drag-over::before{opacity:1}
+.upload-box:hover,.upload-box.drag-over{border-color:var(--acc);transform:scale(1.01)}
+.big-icon{font-family:'Bebas Neue',sans-serif;font-size:5rem;line-height:1;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem;display:block}
+.upload-box h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.1em;margin-bottom:0.5rem}
+.upload-box p{color:var(--muted);font-size:0.72rem;line-height:1.8}
+.formats{margin-top:1.2rem;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.fmt-tag{border:1px solid var(--border);border-radius:2px;padding:3px 10px;font-size:0.65rem;letter-spacing:0.1em;color:var(--muted)}
+
+#file-input{display:none}
+#file-input-add{display:none}
+
+/* ══════════════════════════════
+   MAIN UI (player + playlist)
+══════════════════════════════ */
+#main-ui{position:fixed;bottom:0;left:0;right:0;z-index:100;display:none;flex-direction:column}
+
+/* PLAYLIST PANEL */
+#playlist-panel{
+  background:rgba(5,5,8,0.95);border-top:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  max-height:0;overflow:hidden;
+  transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+#playlist-panel.open{max-height:280px}
+.playlist-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 32px 8px;
+  border-bottom:1px solid var(--border);
+}
+.playlist-header span{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)}
+.pl-actions{display:flex;gap:8px;align-items:center}
+.btn-add-tracks{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 14px;border:1px solid var(--border);
+  background:none;color:var(--acc2);
+  font-family:'DM Mono',monospace;font-size:0.65rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  cursor:pointer;border-radius:2px;transition:all 0.2s;
+}
+.btn-add-tracks:hover{border-color:var(--acc2);background:rgba(0,212,255,0.08)}
+.btn-clear{
+  padding:5px 10px;border:1px solid var(--border);background:none;
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:0.65rem;
+  cursor:pointer;border-radius:2px;transition:all 0.2s;
+}
+.btn-clear:hover{border-color:var(--acc);color:var(--acc)}
+
+#playlist-list{
+  overflow-y:auto;max-height:220px;padding:6px 0;
+}
+#playlist-list::-webkit-scrollbar{width:3px}
+#playlist-list::-webkit-scrollbar-track{background:transparent}
+#playlist-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.pl-item{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 32px;cursor:pointer;
+  transition:background 0.15s;
+  position:relative;
+}
+.pl-item:hover{background:var(--surface)}
+.pl-item.active{background:rgba(255,60,0,0.08)}
+.pl-item.active .pl-num{color:var(--acc)}
+.pl-item.active .pl-name{color:var(--fg)}
+.pl-num{font-size:0.65rem;color:var(--muted);width:20px;text-align:right;flex-shrink:0}
+.pl-name{font-size:0.75rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-item.active .pl-now{display:block}
+.pl-now{display:none;width:8px;height:8px;border-radius:50%;background:var(--acc);flex-shrink:0;animation:pulse 1.2s ease-in-out infinite}
+.pl-dur{font-size:0.65rem;color:var(--muted);flex-shrink:0}
+.pl-del{
+  background:none;border:none;color:transparent;cursor:pointer;
+  font-size:0.8rem;padding:0 4px;transition:color 0.15s;flex-shrink:0;
+}
+.pl-item:hover .pl-del{color:var(--muted)}
+.pl-del:hover{color:var(--acc) !important}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* PLAYER BAR */
+#player-bar{
+  background:rgba(5,5,8,0.95);border-top:1px solid var(--border);
+  backdrop-filter:blur(20px);padding:14px 32px 18px;
+}
+.player-inner{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+
+.track-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.track-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.12em;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track-time{font-size:0.68rem;color:var(--muted);letter-spacing:0.05em;white-space:nowrap}
+
+/* Progress */
+.progress-wrap{position:relative;height:3px;background:var(--surface);border-radius:2px;cursor:pointer;transition:height 0.15s}
+.progress-wrap:hover{height:5px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:2px;width:0%;pointer-events:none;transition:width 0.08s linear}
+.progress-thumb{position:absolute;top:50%;width:11px;height:11px;background:var(--fg);border-radius:50%;transform:translate(-50%,-50%);opacity:0;transition:opacity 0.15s;pointer-events:none;left:0%}
+.progress-wrap:hover .progress-thumb{opacity:1}
+
+/* Controls row */
+.controls-row{display:flex;align-items:center;gap:10px}
+.btn-ctrl{background:none;border:none;cursor:pointer;color:var(--muted);transition:color 0.2s;display:flex;align-items:center;justify-content:center;padding:4px}
+.btn-ctrl:hover{color:var(--fg)}
+.btn-ctrl.active{color:var(--acc2)}
+.btn-play{width:38px;height:38px;border:1px solid var(--border);border-radius:50%;color:var(--fg)}
+.btn-play:hover{border-color:var(--acc);color:var(--acc)}
+
+.vol-wrap{display:flex;align-items:center;gap:6px;margin-left:auto}
+.vol-wrap svg{width:13px;height:13px;color:var(--muted);flex-shrink:0}
+.vol-slider{-webkit-appearance:none;appearance:none;width:70px;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+.vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--fg);border-radius:50%;cursor:pointer}
+
+.btn-playlist{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--border);border-radius:2px;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase}
+.btn-playlist.active{border-color:var(--acc2);color:var(--acc2)}
+.pl-count{font-size:0.6rem;color:var(--muted)}
+
+/* Mode badge */
+#mode-badge{position:fixed;top:24px;right:24px;z-index:200;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:none;align-items:center;gap:8px}
+#mode-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse 1.5s ease-in-out infinite}
+
+
+/* Loading */
+#loading{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(5,5,8,0.95);font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.3em;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<a class="back" href="/">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  Späť na portál
+</a>
+
+<div class="title"><h1>Sound Sculpture Player</h1></div>
+<div id="mode-badge"><div class="dot"></div><span id="mode-text">AUDIO</span></div>
+
+<div id="loading">NAČÍTAVAM...</div>
+
+<canvas id="canvas"></canvas>
+
+<!-- UPLOAD OVERLAY -->
+<div id="upload-overlay">
+  <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <span class="big-icon">♫</span>
+    <h2>Sound Sculpture Player</h2>
+    <p>Nahraj audio súbor a sleduj ako zvuk<br/>formuje živú 3D skulptúru v reálnom čase</p>
+    <div class="formats">
+      <span class="fmt-tag">MP3</span><span class="fmt-tag">WAV</span>
+      <span class="fmt-tag">OGG</span><span class="fmt-tag">FLAC</span><span class="fmt-tag">M4A</span>
+    </div>
+
+    <input type="file" id="file-input" accept="audio/*" multiple/>
+  </div>
+</div>
+
+<!-- MAIN UI -->
+<div id="main-ui">
+  <!-- PLAYLIST PANEL -->
+  <div id="playlist-panel">
+    <div class="playlist-header">
+      <span>Playlist — <span id="pl-total">0</span> trackov</span>
+      <div class="pl-actions">
+        <button class="btn-add-tracks" onclick="document.getElementById('file-input-add').click()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Pridať skladby
+        </button>
+        <button class="btn-clear" onclick="clearPlaylist()">Vymazať všetko</button>
+      </div>
+    </div>
+    <div id="playlist-list"></div>
+  </div>
+
+  <!-- PLAYER BAR -->
+  <div id="player-bar">
+    <div class="player-inner">
+      <div class="track-row">
+        <div class="track-name" id="track-name">—</div>
+        <div class="track-time"><span id="cur-time">0:00</span> / <span id="dur-time">0:00</span></div>
+      </div>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-fill" id="progress-fill"></div>
+        <div class="progress-thumb" id="progress-thumb"></div>
+      </div>
+      <div class="controls-row">
+        <!-- Prev -->
+        <button class="btn-ctrl" id="btn-prev" title="Predchádzajúci">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="19,20 9,12 19,4"/><rect x="5" y="4" width="2" height="16"/></svg>
+        </button>
+        <!-- Play/Pause -->
+        <button class="btn-ctrl btn-play" id="btn-play">
+          <svg id="icon-play" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          <svg id="icon-pause" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <!-- Next -->
+        <button class="btn-ctrl" id="btn-next" title="Ďalší">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/></svg>
+        </button>
+        <!-- Stop -->
+        <button class="btn-ctrl" id="btn-stop" title="Stop">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        </button>
+        <!-- Loop -->
+        <button class="btn-ctrl" id="btn-loop" title="Opakovať">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        </button>
+        <!-- Shuffle -->
+        <button class="btn-ctrl" id="btn-shuffle" title="Náhodné poradie">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+        </button>
+        <!-- Playlist toggle -->
+        <button class="btn-ctrl btn-playlist" id="btn-playlist-toggle">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          <span class="pl-count" id="pl-count-badge">0</span>
+        </button>
+        <!-- Volume -->
+        <div class="vol-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.01" value="0.8"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input-add" accept="audio/*" multiple style="display:none"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════
+// THREE.JS SCENE
+// ═══════════════════════════════════
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x050508, 1);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 5.5);
+scene.fog = new THREE.FogExp2(0x050508, 0.045);
+
+// Lights — 4 colored point lights for rich reflections
+const ambLight = new THREE.AmbientLight(0xffffff, 0.1); scene.add(ambLight);
+const light1 = new THREE.PointLight(0xff3c00, 8, 30); light1.position.set(4,4,4); scene.add(light1);
+const light2 = new THREE.PointLight(0x00d4ff, 8, 30); light2.position.set(-4,-4,4); scene.add(light2);
+const light3 = new THREE.PointLight(0xff00bb, 5, 22); light3.position.set(0,5,-3); scene.add(light3);
+const light4 = new THREE.PointLight(0x88ff00, 4, 22); light4.position.set(-5,0,3); scene.add(light4);
+
+// ── MAIN SPHERE — деформируемая сфера ──
+const geo = new THREE.SphereGeometry(1.3, 80, 80);
+const posAttr = geo.attributes.position;
+const origPos = new Float32Array(posAttr.array.length);
+origPos.set(posAttr.array);
+
+const mat = new THREE.MeshPhongMaterial({
+  color: 0x0a0a16,
+  emissive: 0x000000,
+  specular: 0xffffff,
+  shininess: 100,
+  side: THREE.DoubleSide,
+});
+const mesh = new THREE.Mesh(geo, mat);
+scene.add(mesh);
+
+// ── THIN WIREFRAME ──
+const wireMat = new THREE.MeshBasicMaterial({color:0x00d4ff,wireframe:true,transparent:true,opacity:0.05});
+const wireMesh = new THREE.Mesh(new THREE.SphereGeometry(1.32,36,36), wireMat);
+scene.add(wireMesh);
+
+// ── INNER GLOW ──
+const innerMat = new THREE.MeshBasicMaterial({color:0xff3c00,transparent:true,opacity:0.06,side:THREE.BackSide});
+const innerMesh = new THREE.Mesh(new THREE.SphereGeometry(1.55,32,32), innerMat);
+scene.add(innerMesh);
+
+// ── 2 ORBITAL RINGS ──
+const ring1Mat = new THREE.MeshBasicMaterial({color:0xff3c00,transparent:true,opacity:0.35});
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.2,0.005,8,256), ring1Mat);
+scene.add(ring1);
+
+const ring2Mat = new THREE.MeshBasicMaterial({color:0x00d4ff,transparent:true,opacity:0.22});
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.6,0.003,8,256), ring2Mat);
+ring2.rotation.x = Math.PI/2.5;
+scene.add(ring2);
+
+// ── PARTICLES — sparse cloud ──
+const PCNT = 1800;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PCNT*3);
+const pOrig = new Float32Array(PCNT*3);
+const pPhase = new Float32Array(PCNT);
+for(let i=0;i<PCNT;i++){
+  const th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+  const r=2.0+Math.random()*1.8;
+  pPos[i*3]=pOrig[i*3]=r*Math.sin(ph)*Math.cos(th);
+  pPos[i*3+1]=pOrig[i*3+1]=r*Math.cos(ph);
+  pPos[i*3+2]=pOrig[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+  pPhase[i]=Math.random()*Math.PI*2;
+}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+const pMat = new THREE.PointsMaterial({color:0xff3c00,size:0.018,transparent:true,opacity:0.5});
+scene.add(new THREE.Points(pGeo,pMat));
+
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// ═══════════════════════════════════
+// AUDIO ENGINE
+// ═══════════════════════════════════
+let audioCtx=null, analyser=null, dataArray=null, gainNode=null;
+let source=null;
+let isPlaying=false, isLooping=false, isShuffle=false, isMicMode=false;
+let startedAt=0, pausedAt=0; // Web Audio time tracking
+
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize=512; analyser.smoothingTimeConstant=0.82;
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value=0.8;
+  analyser.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+}
+
+// ═══════════════════════════════════
+// PLAYLIST
+// ═══════════════════════════════════
+let playlist = []; // [{name, buffer, duration}]
+let currentIdx = -1;
+
+function addFilesToPlaylist(files){
+  let loaded=0;
+  const total=files.length;
+  document.getElementById('loading').style.display='flex';
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      audioCtx.decodeAudioData(e.target.result, buf=>{
+        const name=file.name.replace(/\.[^.]+$/,'');
+        playlist.push({name, buffer:buf, duration:buf.duration});
+        loaded++;
+        if(loaded===total){
+          document.getElementById('loading').style.display='none';
+          renderPlaylist();
+          if(currentIdx===-1) playTrack(0);
+        }
+      }, ()=>{
+        loaded++;
+        if(loaded===total) document.getElementById('loading').style.display='none';
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function renderPlaylist(){
+  const list=document.getElementById('playlist-list');
+  list.innerHTML='';
+  playlist.forEach((t,i)=>{
+    const el=document.createElement('div');
+    el.className='pl-item'+(i===currentIdx?' active':'');
+    el.innerHTML=`
+      <span class="pl-num">${i+1}</span>
+      <span class="pl-name">${t.name}</span>
+      <span class="pl-now"></span>
+      <span class="pl-dur">${formatTime(t.duration)}</span>
+      <button class="pl-del" title="Odstrániť" onclick="event.stopPropagation();removeTrack(${i})">✕</button>
+    `;
+    el.addEventListener('click',()=>playTrack(i));
+    list.appendChild(el);
+  });
+  document.getElementById('pl-total').textContent=playlist.length;
+  document.getElementById('pl-count-badge').textContent=playlist.length;
+  // scroll active into view
+  const active=list.querySelector('.active');
+  if(active) active.scrollIntoView({block:'nearest'});
+}
+
+function removeTrack(i){
+  playlist.splice(i,1);
+  if(currentIdx===i){
+    stopSource();
+    if(playlist.length===0){ currentIdx=-1; resetPlayerUI(); }
+    else{ currentIdx=Math.min(i,playlist.length-1); playTrack(currentIdx); }
+  } else if(currentIdx>i){ currentIdx--; }
+  renderPlaylist();
+}
+
+function clearPlaylist(){
+  stopSource();
+  playlist=[]; currentIdx=-1;
+  resetPlayerUI();
+  renderPlaylist();
+  document.getElementById('upload-overlay').style.display='flex';
+  document.getElementById('main-ui').style.display='none';
+  document.getElementById('mode-badge').style.display='none';
+}
+
+// ═══════════════════════════════════
+// PLAYBACK ENGINE
+// ═══════════════════════════════════
+
+// Generation counter — prevents stale onended from old source
+let sourceGen = 0;
+
+function killSource(){
+  if(source){ try{source.onended=null; source.stop();}catch(e){} source=null; }
+}
+
+function stopSource(){
+  sourceGen++;
+  killSource();
+  isPlaying=false; pausedAt=0; startedAt=0;
+}
+
+function playTrack(idx){
+  if(idx<0||idx>=playlist.length) return;
+  sourceGen++;
+  killSource();
+
+  currentIdx=idx;
+  const track=playlist[idx];
+  const myGen=sourceGen;
+
+  source=audioCtx.createBufferSource();
+  source.buffer=track.buffer;
+  source.connect(analyser);
+  source.start(0,0);
+  startedAt=audioCtx.currentTime;
+  pausedAt=0;
+  isPlaying=true;
+
+  source.onended=()=>{
+    if(myGen!==sourceGen) return;
+    if(isPlaying) onTrackEnded();
+  };
+
+  document.getElementById('track-name').textContent=track.name;
+  document.getElementById('dur-time').textContent=formatTime(track.duration);
+  document.getElementById('cur-time').textContent='0:00';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-thumb').style.left='0%';
+  updatePlayBtn();
+  renderPlaylist();
+}
+
+function onTrackEnded(){
+  isPlaying=false;
+  if(isLooping){
+    playTrack(currentIdx);
+  } else if(isShuffle){
+    playTrack(Math.floor(Math.random()*playlist.length));
+  } else if(currentIdx<playlist.length-1){
+    playTrack(currentIdx+1);
+  } else {
+    updatePlayBtn();
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('cur-time').textContent=formatTime(playlist[currentIdx]?.duration||0);
+  }
+}
+
+function togglePlay(){
+  if(!playlist.length||currentIdx<0) return;
+  if(audioCtx.state==='suspended') audioCtx.resume();
+
+  if(isPlaying){
+    // PAUSE — save position BEFORE killing source
+    pausedAt = audioCtx.currentTime - startedAt;
+    sourceGen++;
+    killSource();
+    isPlaying=false;
+    updatePlayBtn();
+  } else {
+    // RESUME from pausedAt
+    const offset=Math.min(pausedAt, playlist[currentIdx].duration-0.01);
+    const myGen=++sourceGen;
+    source=audioCtx.createBufferSource();
+    source.buffer=playlist[currentIdx].buffer;
+    source.connect(analyser);
+    source.start(0,offset);
+    startedAt=audioCtx.currentTime-offset;
+    isPlaying=true;
+    source.onended=()=>{ if(myGen!==sourceGen) return; if(isPlaying) onTrackEnded(); };
+    updatePlayBtn();
+  }
+}
+
+function seekTo(pct){
+  if(!playlist.length||currentIdx<0) return;
+  const dur=playlist[currentIdx].duration;
+  const newTime=Math.max(0,Math.min(pct*dur,dur-0.01));
+  const wasPlaying=isPlaying;
+
+  sourceGen++;
+  killSource();
+  isPlaying=false;
+  pausedAt=newTime;
+
+  if(wasPlaying){
+    const myGen=sourceGen;
+    source=audioCtx.createBufferSource();
+    source.buffer=playlist[currentIdx].buffer;
+    source.connect(analyser);
+    source.start(0,newTime);
+    startedAt=audioCtx.currentTime-newTime;
+    isPlaying=true;
+    source.onended=()=>{ if(myGen!==sourceGen) return; if(isPlaying) onTrackEnded(); };
+  }
+
+  document.getElementById('progress-fill').style.width=(pct*100)+'%';
+  document.getElementById('progress-thumb').style.left=(pct*100)+'%';
+  document.getElementById('cur-time').textContent=formatTime(newTime);
+  updatePlayBtn();
+}
+
+function stopAll(){
+  stopSource();
+  updatePlayBtn();
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-thumb').style.left='0%';
+  document.getElementById('cur-time').textContent='0:00';
+}
+
+function prevTrack(){
+  const elapsed=isPlaying?(audioCtx.currentTime-startedAt):pausedAt;
+  if(elapsed>3){ seekTo(0); return; }
+  playTrack(currentIdx>0?currentIdx-1:playlist.length-1);
+}
+
+function nextTrack(){
+  if(isShuffle){ playTrack(Math.floor(Math.random()*playlist.length)); return; }
+  playTrack((currentIdx+1)%playlist.length);
+}
+
+function updatePlayBtn(){
+  document.getElementById('icon-play').style.display=isPlaying?'none':'block';
+  document.getElementById('icon-pause').style.display=isPlaying?'block':'none';
+}
+
+function resetPlayerUI(){
+  document.getElementById('track-name').textContent='—';
+  document.getElementById('dur-time').textContent='0:00';
+  document.getElementById('cur-time').textContent='0:00';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-thumb').style.left='0%';
+  updatePlayBtn();
+}
+
+// ═══════════════════════════════════
+// PROGRESS BAR INTERACTION
+// ═══════════════════════════════════
+const progressWrap=document.getElementById('progress-wrap');
+let seeking=false;
+
+function getPct(e){
+  const rect=progressWrap.getBoundingClientRect();
+  return Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+}
+
+progressWrap.addEventListener('mousedown',e=>{
+  seeking=true; seekTo(getPct(e));
+});
+window.addEventListener('mousemove',e=>{
+  if(!seeking) return;
+  const pct=getPct(e);
+  document.getElementById('progress-fill').style.width=(pct*100)+'%';
+  document.getElementById('progress-thumb').style.left=(pct*100)+'%';
+});
+window.addEventListener('mouseup',e=>{
+  if(!seeking) return;
+  seeking=false; seekTo(getPct(e));
+});
+
+// ═══════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════
+document.getElementById('btn-play').addEventListener('click',togglePlay);
+document.getElementById('btn-stop').addEventListener('click',stopAll);
+document.getElementById('btn-prev').addEventListener('click',prevTrack);
+document.getElementById('btn-next').addEventListener('click',nextTrack);
+
+document.getElementById('btn-loop').addEventListener('click',function(){
+  isLooping=!isLooping; isShuffle=false;
+  this.classList.toggle('active',isLooping);
+  document.getElementById('btn-shuffle').classList.remove('active');
+});
+document.getElementById('btn-shuffle').addEventListener('click',function(){
+  isShuffle=!isShuffle; isLooping=false;
+  this.classList.toggle('active',isShuffle);
+  document.getElementById('btn-loop').classList.remove('active');
+});
+
+document.getElementById('vol-slider').addEventListener('input',function(){
+  if(gainNode) gainNode.gain.value=parseFloat(this.value);
+});
+
+// PLAYLIST TOGGLE
+document.getElementById('btn-playlist-toggle').addEventListener('click',function(){
+  const panel=document.getElementById('playlist-panel');
+  panel.classList.toggle('open');
+  this.classList.toggle('active',panel.classList.contains('open'));
+});
+
+// ═══════════════════════════════════
+// FILE INPUT
+// ═══════════════════════════════════
+document.getElementById('file-input').addEventListener('change',function(){
+  if(!this.files.length) return;
+  initAudio();
+  isMicMode=false;
+  document.getElementById('upload-overlay').style.display='none';
+  document.getElementById('main-ui').style.display='flex';
+  document.getElementById('main-ui').style.flexDirection='column';
+  document.getElementById('mode-badge').style.display='flex';
+  document.getElementById('mode-text').textContent='AUDIO';
+  addFilesToPlaylist(this.files);
+  this.value='';
+});
+
+document.getElementById('file-input-add').addEventListener('change',function(){
+  if(!this.files.length) return;
+  addFilesToPlaylist(this.files);
+  this.value='';
+  document.getElementById('playlist-panel').classList.add('open');
+  document.getElementById('btn-playlist-toggle').classList.add('active');
+});
+
+// DRAG & DROP
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('drag-over');
+  if(!e.dataTransfer.files.length) return;
+  initAudio(); isMicMode=false;
+  document.getElementById('upload-overlay').style.display='none';
+  document.getElementById('main-ui').style.display='flex';
+  document.getElementById('main-ui').style.flexDirection='column';
+  document.getElementById('mode-badge').style.display='flex';
+  addFilesToPlaylist(e.dataTransfer.files);
+});
+
+// ═══════════════════════════════════
+// MICROPHONE
+// ═══════════════════════════════════
+async function startMic(){
+  try{
+    initAudio();
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    stopSource(); isMicMode=true; isPlaying=true;
+    const micSrc=audioCtx.createMediaStreamSource(stream);
+    micSrc.connect(analyser);
+    document.getElementById('upload-overlay').style.display='none';
+    document.getElementById('main-ui').style.display='none';
+    document.getElementById('mic-label').style.display='block';
+    document.getElementById('mode-badge').style.display='flex';
+    document.getElementById('mode-text').textContent='MIC LIVE';
+    document.querySelector('#mode-badge .dot').style.background='var(--acc2)';
+  }catch(e){ alert('Mikrofonový prístup bol odmietnutý.'); }
+}
+
+// ═══════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════
+function formatTime(s){
+  if(isNaN(s)||s<0) return '0:00';
+  const m=Math.floor(s/60), sec=Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+// ═══════════════════════════════════
+// ANIMATION
+// ═══════════════════════════════════
+const clock=new THREE.Clock();
+let sB=0,sM=0,sH=0,sV=0;
+
+function getBands(){
+  if(!analyser||!dataArray) return {bass:0,mid:0,high:0,vol:0};
+  analyser.getByteFrequencyData(dataArray);
+  const len=dataArray.length;
+  const bE=Math.floor(len*0.08), mE=Math.floor(len*0.35);
+  let b=0,m=0,h=0,tot=0;
+  for(let i=0;i<bE;i++) b+=dataArray[i];
+  for(let i=bE;i<mE;i++) m+=dataArray[i];
+  for(let i=mE;i<len;i++) h+=dataArray[i];
+  for(let i=0;i<len;i++) tot+=dataArray[i];
+  return {bass:b/(bE*255),mid:m/((mE-bE)*255),high:h/((len-mE)*255),vol:tot/(len*255)};
+}
+
+function noise(x,y,z,t){ return Math.sin(x*2.3+t)*Math.cos(y*1.7+t*0.7)*Math.sin(z*1.9+t*0.5); }
+
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+  const {bass,mid,high,vol}=getBands();
+  const sp=0.1;
+  sB+=(bass-sB)*sp; sM+=(mid-sM)*sp; sH+=(high-sH)*sp; sV+=(vol-sV)*sp;
+  const hasAudio=sV>0.004;
+  const hue=(t*15+sB*80)%360;
+
+  // ── DEFORM SPHERE ──
+  const arr=posAttr.array;
+  for(let i=0;i<arr.length;i+=3){
+    const ox=origPos[i],oy=origPos[i+1],oz=origPos[i+2];
+    const d=hasAudio
+      ? sB*0.7*noise(ox,oy,oz,t*0.5)
+      + sM*0.35*noise(ox*2,oy*2,oz*2,t*1.1)
+      + sH*0.15*noise(ox*4,oy*4,oz*4,t*1.9)
+      : 0.04*noise(ox,oy,oz,t*0.25);
+    const l=Math.sqrt(ox*ox+oy*oy+oz*oz)||1;
+    arr[i]=ox+(ox/l)*d; arr[i+1]=oy+(oy/l)*d; arr[i+2]=oz+(oz/l)*d;
+  }
+  posAttr.needsUpdate=true; geo.computeVertexNormals();
+
+  // ── COLORS ──
+  mat.emissive.setHSL(hue/360, 0.9, sV*0.25);
+  mat.color.setHSL((hue+180)/360, 0.2, 0.04+sB*0.1);
+  innerMat.color.setHSL(hue/360, 1, 0.6);
+  innerMat.opacity=0.04+sB*0.14;
+  wireMat.opacity=0.03+sH*0.08;
+
+  // ── LIGHTS ──
+  light1.intensity=3+sB*10; light2.intensity=3+sH*8;
+  light3.intensity=2+sM*6;  light4.intensity=1+sB*4;
+  light1.color.setHSL(0.04, 1, 0.6);      // orange — fixed
+  light2.color.setHSL(0.54, 1, 0.6);      // cyan — fixed
+  light3.color.setHSL(hue/360, 1, 0.6);   // dynamic
+  light4.color.setHSL((hue+120)/360, 1, 0.6);
+
+  // ── ROTATE ──
+  const rs=0.003+sB*0.015;
+  mesh.rotation.y+=rs; mesh.rotation.x+=rs*0.35;
+  wireMesh.rotation.y-=rs*0.5; wireMesh.rotation.z+=rs*0.2;
+  innerMesh.rotation.y+=rs*0.8;
+
+  // ── RINGS ──
+  ring1.rotation.z+=0.004+sM*0.018; ring1.rotation.x+=0.002;
+  ring2.rotation.y+=0.003+sH*0.014;
+  ring1.scale.setScalar(1+sB*0.28);
+  ring2.scale.setScalar(1+sM*0.18);
+  ring1Mat.opacity=0.15+sB*0.45;
+  ring2Mat.opacity=0.1+sM*0.35;
+
+  // ── PARTICLES ──
+  const pp=pGeo.attributes.position.array;
+  for(let i=0;i<PCNT;i++){
+    const ox=pOrig[i*3],oy=pOrig[i*3+1],oz=pOrig[i*3+2];
+    const ph=pPhase[i];
+    pp[i*3]  =ox+Math.sin(t*0.7+ph)*0.05+ox*sB*0.12;
+    pp[i*3+1]=oy+Math.cos(t*0.55+ph)*0.05+oy*sB*0.12;
+    pp[i*3+2]=oz+Math.sin(t*0.45+ph+1)*0.05+oz*sB*0.12;
+  }
+  pGeo.attributes.position.needsUpdate=true;
+  pMat.opacity=0.2+sH*0.5;
+  pMat.color.setHSL(0.04, 1, 0.6); // orange — matches accent
+
+  // ── CAMERA ──
+  camera.position.x=Math.sin(t*0.17)*0.3+sB*0.4;
+  camera.position.y=Math.cos(t*0.12)*0.25;
+  camera.position.z=5.5-sV*0.4;
+  camera.lookAt(0,0,0);
+
+  // Update progress bar
+  if(isPlaying && !isMicMode && currentIdx>=0 && audioCtx){
+    const elapsed=audioCtx.currentTime-startedAt;
+    const dur=playlist[currentIdx].duration;
+    const pct=Math.min(elapsed/dur,1);
+    if(!seeking){
+      document.getElementById('progress-fill').style.width=(pct*100)+'%';
+      document.getElementById('progress-thumb').style.left=(pct*100)+'%';
+      document.getElementById('cur-time').textContent=formatTime(elapsed);
+    }
+  }
+
+  renderer.render(scene,camera);
+}
+
+animate();
+</script>
+</body>
+</html>
