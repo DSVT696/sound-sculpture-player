@@ -4,9 +4,11 @@ An interactive 3D audio visualizer with a full-featured music player. Drop any t
 
 ## 🖼️ Preview
 
-![Sound Sculpture Player — active](thumbnail.png)
+![Sound Sculpture Player — upload screen](thumbnail.png)
 
-![Sound Sculpture Player — upload screen](thumbnail2.png)
+![Sound Sculpture Player — active](thumbnail2.png)
+
+![Sound Sculpture Player — playlist](thumbnail3.png)
 
 ## ✨ Features
 
