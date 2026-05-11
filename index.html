@@ -150,6 +150,120 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 
 /* Loading */
 #loading{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(5,5,8,0.95);font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.3em;color:var(--muted)}
+
+/* MIC LABEL */
+#mic-label{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;display:none;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.3em;color:var(--muted);pointer-events:none}
+
+/* VIZ PANEL */
+#viz-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:rgba(5,5,8,0.97);border-top:1px solid var(--border);
+  backdrop-filter:blur(24px);
+  transform:translateY(100%);
+  transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);
+  padding:20px 32px 28px;
+}
+#viz-panel.open{transform:translateY(0)}
+.viz-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.viz-panel-title{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)}
+.viz-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;transition:color 0.2s;padding:0}
+.viz-close:hover{color:var(--fg)}
+.viz-grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:8px;
+}
+@media(max-width:1100px){.viz-grid{grid-template-columns:repeat(6,1fr)}}
+@media(max-width:600px){.viz-grid{grid-template-columns:repeat(4,1fr)}}
+.viz-card{
+  border:1px solid var(--border);border-radius:3px;
+  padding:14px 8px 12px;
+  cursor:pointer;text-align:center;
+  transition:all 0.22s;
+  position:relative;overflow:hidden;
+  background:var(--surface);
+}
+.viz-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,60,0,0.08),transparent,rgba(0,212,255,0.08));
+  opacity:0;transition:opacity 0.22s;
+}
+.viz-card:hover::before,.viz-card.active::before{opacity:1}
+.viz-card:hover{border-color:rgba(240,237,232,0.3);transform:translateY(-2px)}
+.viz-card.active{border-color:var(--acc);box-shadow:0 0 16px rgba(255,60,0,0.2)}
+.viz-icon{
+  width:44px;height:44px;margin:0 auto 10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.viz-icon svg{width:100%;height:100%}
+.viz-name{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);line-height:1.4}
+.viz-card.active .viz-name{color:var(--acc)}
+
+/* VIZ button in controls */
+.btn-viz{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border:1px solid var(--border);border-radius:2px;
+  font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;
+  background:none;color:var(--muted);cursor:pointer;
+  font-family:'DM Mono',monospace;transition:all 0.2s;
+}
+.btn-viz:hover{border-color:var(--acc2);color:var(--acc2)}
+.btn-viz.active{border-color:var(--acc2);color:var(--acc2)}
+
+/* HOTKEY HELP */
+#help-btn{
+  position:fixed;bottom:24px;right:24px;z-index:400;
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--border);background:rgba(5,5,8,0.85);
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:0.72rem;
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  transition:all 0.2s;backdrop-filter:blur(8px);
+}
+#help-btn:hover{border-color:var(--acc2);color:var(--acc2)}
+#help-btn.open{border-color:var(--acc2);color:var(--acc2)}
+
+#help-panel{
+  position:fixed;bottom:60px;right:24px;z-index:400;
+  background:rgba(5,5,8,0.96);border:1px solid var(--border);
+  border-radius:4px;backdrop-filter:blur(20px);
+  padding:16px 20px;min-width:230px;
+  transform:translateY(6px) scale(0.97);
+  opacity:0;pointer-events:none;
+  transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
+  transform-origin:bottom right;
+}
+#help-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+.help-title{
+  font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.help-section{margin-bottom:10px;}
+.help-section-label{
+  font-size:0.53rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(240,237,232,0.25);margin-bottom:5px;
+}
+.help-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:4px;
+}
+.help-desc{font-size:0.65rem;color:var(--muted);}
+.help-keys{display:flex;gap:3px;flex-shrink:0;}
+.hk{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:1px 6px;min-width:20px;height:18px;
+  border:1px solid rgba(240,237,232,0.18);border-radius:2px;
+  font-size:0.58rem;color:rgba(240,237,232,0.6);
+  background:rgba(240,237,232,0.04);
+  letter-spacing:0.02em;white-space:nowrap;
+}
+
+/* Key flash feedback */
+@keyframes keyFlash{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
+.key-flash{ animation:keyFlash 0.18s ease-out; }
 </style>
 </head>
 <body>
@@ -163,6 +277,98 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
 <div id="mode-badge"><div class="dot"></div><span id="mode-text">AUDIO</span></div>
 
 <div id="loading">NAČÍTAVAM...</div>
+<div id="mic-label">● MIC LIVE</div>
+
+<!-- HELP BUTTON & PANEL -->
+<button id="help-btn" title="Klávesové skratky">?</button>
+<div id="help-panel">
+  <div class="help-title">Klávesové skratky</div>
+
+  <div class="help-section">
+    <div class="help-section-label">Prehrávanie</div>
+    <div class="help-row"><span class="help-desc">Play / Pauza</span><span class="help-keys"><span class="hk">Space</span></span></div>
+    <div class="help-row"><span class="help-desc">Stop</span><span class="help-keys"><span class="hk">S</span></span></div>
+    <div class="help-row"><span class="help-desc">Predchádzajúci</span><span class="help-keys"><span class="hk">←</span><span class="hk">A</span></span></div>
+    <div class="help-row"><span class="help-desc">Ďalší</span><span class="help-keys"><span class="hk">→</span><span class="hk">D</span></span></div>
+    <div class="help-row"><span class="help-desc">Pretočiť −5s</span><span class="help-keys"><span class="hk">Shift</span><span class="hk">←</span></span></div>
+    <div class="help-row"><span class="help-desc">Pretočiť +5s</span><span class="help-keys"><span class="hk">Shift</span><span class="hk">→</span></span></div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-label">Hlasitosť</div>
+    <div class="help-row"><span class="help-desc">Hlasitosť +</span><span class="help-keys"><span class="hk">↑</span></span></div>
+    <div class="help-row"><span class="help-desc">Hlasitosť −</span><span class="help-keys"><span class="hk">↓</span></span></div>
+    <div class="help-row"><span class="help-desc">Stlmiť / Zrušiť</span><span class="help-keys"><span class="hk">M</span></span></div>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section-label">Režimy</div>
+    <div class="help-row"><span class="help-desc">Opakovať</span><span class="help-keys"><span class="hk">L</span></span></div>
+    <div class="help-row"><span class="help-desc">Náhodné</span><span class="help-keys"><span class="hk">R</span></span></div>
+    <div class="help-row"><span class="help-desc">Playlist</span><span class="help-keys"><span class="hk">P</span></span></div>
+    <div class="help-row"><span class="help-desc">Vizualizácia</span><span class="help-keys"><span class="hk">V</span></span></div>
+    <div class="help-row"><span class="help-desc">Ďalšia viz.</span><span class="help-keys"><span class="hk">Tab</span></span></div>
+    <div class="help-row"><span class="help-desc">Táto nápoveda</span><span class="help-keys"><span class="hk">?</span></span></div>
+  </div>
+</div>
+
+<!-- VIZUALIZÁCIA PANEL -->
+<div id="viz-panel">
+  <div class="viz-panel-header">
+    <span class="viz-panel-title">Vizualizácia</span>
+    <button class="viz-close" id="viz-close-btn">✕</button>
+  </div>
+  <div class="viz-grid" id="viz-grid">
+    <div class="viz-card active" data-viz="0">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="10" stroke="#ff3c00" stroke-width="1.5" opacity="0.9"/><circle cx="22" cy="22" r="15" stroke="#00d4ff" stroke-width="0.7" opacity="0.5"/><circle cx="22" cy="22" r="19" stroke="#ff3c00" stroke-width="0.4" opacity="0.25"/><circle cx="22" cy="22" r="4" fill="#ff3c00" opacity="0.7"/></svg></div>
+      <div class="viz-name">Skulptúra</div>
+    </div>
+    <div class="viz-card" data-viz="1">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><path d="M2 28 Q8 14 14 22 Q20 30 26 16 Q32 2 38 18 Q41 24 44 20" stroke="#ff3c00" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9"/><path d="M2 32 Q8 20 14 28 Q20 36 26 22 Q32 8 38 24" stroke="#00d4ff" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45"/></svg></div>
+      <div class="viz-name">Vlnenie</div>
+    </div>
+    <div class="viz-card" data-viz="2">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="1.8" fill="#ff3c00"/><circle cx="10" cy="18" r="1" fill="#ff3c00" opacity="0.8"/><circle cx="15" cy="10" r="0.9" fill="#ff6600" opacity="0.7"/><circle cx="28" cy="8" r="1.1" fill="#00d4ff" opacity="0.8"/><circle cx="36" cy="15" r="0.8" fill="#00d4ff" opacity="0.6"/><circle cx="34" cy="28" r="1" fill="#00d4ff" opacity="0.7"/><circle cx="25" cy="35" r="0.9" fill="#ff3c00" opacity="0.6"/><circle cx="12" cy="32" r="0.8" fill="#ff3c00" opacity="0.5"/><circle cx="8" cy="26" r="0.7" fill="#00aaff" opacity="0.5"/></svg></div>
+      <div class="viz-name">Galaxia</div>
+    </div>
+    <div class="viz-card" data-viz="3">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><rect x="2" y="2" width="40" height="40" rx="2" stroke="#00d4ff" stroke-width="0.6" opacity="0.25"/><path d="M2 22 Q8 10 14 22 Q20 34 26 22 Q32 10 38 22 Q41 28 44 22" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.95"/><path d="M2 22 Q8 10 14 22 Q20 34 26 22 Q32 10 38 22" stroke="#00d4ff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.12"/></svg></div>
+      <div class="viz-name">Oscilátor</div>
+    </div>
+    <div class="viz-card" data-viz="4">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="7" stroke="#ff3c00" stroke-width="0.5" opacity="0.3"/><line x1="22" y1="22" x2="22" y2="8" stroke="#ff3c00" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="32" y2="12" stroke="#ff6600" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/><line x1="22" y1="22" x2="36" y2="22" stroke="#ff3c00" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="32" y2="32" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/><line x1="22" y1="22" x2="22" y2="36" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="12" y2="32" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><line x1="22" y1="22" x2="8" y2="22" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/><line x1="22" y1="22" x2="12" y2="12" stroke="#ff3c00" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/></svg></div>
+      <div class="viz-name">Spektrum</div>
+    </div>
+    <div class="viz-card" data-viz="5">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><path d="M15 3 Q22 11 15 19 Q8 27 15 35 Q22 43 15 44" stroke="#ff3c00" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.9"/><path d="M29 3 Q22 11 29 19 Q36 27 29 35 Q22 43 29 44" stroke="#00d4ff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.9"/><line x1="15" y1="9" x2="29" y2="13" stroke="#ffffff" stroke-width="0.8" opacity="0.3"/><line x1="29" y1="19" x2="15" y2="23" stroke="#ffffff" stroke-width="0.8" opacity="0.3"/><line x1="15" y1="29" x2="29" y2="33" stroke="#ffffff" stroke-width="0.8" opacity="0.3"/></svg></div>
+      <div class="viz-name">DNA</div>
+    </div>
+    <div class="viz-card" data-viz="6">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="5" ry="5" stroke="#ff3c00" stroke-width="1" opacity="0.9"/><ellipse cx="22" cy="22" rx="10" ry="9" stroke="#ff3c00" stroke-width="0.8" opacity="0.6"/><ellipse cx="22" cy="22" rx="16" ry="13" stroke="#00d4ff" stroke-width="0.6" opacity="0.5"/><ellipse cx="22" cy="22" rx="21" ry="17" stroke="#00d4ff" stroke-width="0.4" opacity="0.3"/></svg></div>
+      <div class="viz-name">Tunel</div>
+    </div>
+    <div class="viz-card" data-viz="7">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><path d="M1 30 Q8 20 15 26 Q22 32 29 18 Q36 4 44 14" stroke="#ff3c00" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.9"/><path d="M1 36 Q8 26 15 32 Q22 38 29 24 Q36 10 44 20" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/><path d="M1 24 Q8 14 15 20 Q22 26 29 12 Q36 -2 44 8" stroke="#ff6600" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.4"/></svg></div>
+      <div class="viz-name">Aurora</div>
+    </div>
+    <div class="viz-card" data-viz="8">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><polygon points="22,4 38,14 38,30 22,40 6,30 6,14" stroke="#00d4ff" stroke-width="1" fill="none" opacity="0.9"/><polygon points="22,10 33,17 33,27 22,34 11,27 11,17" stroke="#ff3c00" stroke-width="0.8" fill="none" opacity="0.65"/><polygon points="22,16 28,20 28,24 22,28 16,24 16,20" stroke="#00d4ff" stroke-width="0.6" fill="none" opacity="0.45"/><circle cx="22" cy="22" r="2" fill="#ff3c00" opacity="0.8"/></svg></div>
+      <div class="viz-name">Kryštál</div>
+    </div>
+    <div class="viz-card" data-viz="9">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><line x1="22" y1="22" x2="22" y2="5" stroke="#ff3c00" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="34" y2="9" stroke="#ff6600" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/><line x1="22" y1="22" x2="39" y2="22" stroke="#ff3c00" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="34" y2="35" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/><line x1="22" y1="22" x2="22" y2="39" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="10" y2="35" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/><line x1="22" y1="22" x2="5" y2="22" stroke="#ff3c00" stroke-width="2" stroke-linecap="round" opacity="0.9"/><line x1="22" y1="22" x2="10" y2="9" stroke="#ff6600" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/><circle cx="22" cy="22" r="2.5" fill="#ff3c00" opacity="0.9"/></svg></div>
+      <div class="viz-name">Lúče</div>
+    </div>
+    <div class="viz-card" data-viz="10">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="1.5" fill="#ff3c00"/><circle cx="14" cy="16" r="0.9" fill="#ff3c00" opacity="0.7"/><circle cx="30" cy="16" r="0.9" fill="#00d4ff" opacity="0.7"/><circle cx="14" cy="28" r="0.9" fill="#ff6600" opacity="0.7"/><circle cx="30" cy="28" r="0.9" fill="#00d4ff" opacity="0.7"/><circle cx="22" cy="10" r="0.7" fill="#00d4ff" opacity="0.6"/><circle cx="22" cy="34" r="0.7" fill="#ff3c00" opacity="0.6"/><circle cx="8" cy="22" r="0.7" fill="#ff3c00" opacity="0.5"/><circle cx="36" cy="22" r="0.7" fill="#00aaff" opacity="0.5"/><circle cx="10" cy="12" r="0.6" fill="#ff6600" opacity="0.4"/><circle cx="34" cy="12" r="0.6" fill="#00d4ff" opacity="0.4"/><circle cx="10" cy="32" r="0.6" fill="#ff3c00" opacity="0.4"/><circle cx="34" cy="32" r="0.6" fill="#00aaff" opacity="0.4"/></svg></div>
+      <div class="viz-name">Prach</div>
+    </div>
+    <div class="viz-card" data-viz="11">
+      <div class="viz-icon"><svg viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="18" ry="6" stroke="#ff3c00" stroke-width="1" fill="none" opacity="0.9"/><ellipse cx="22" cy="22" rx="18" ry="6" stroke="#ff3c00" stroke-width="1" fill="none" opacity="0.9" transform="rotate(60 22 22)"/><ellipse cx="22" cy="22" rx="18" ry="6" stroke="#00d4ff" stroke-width="1" fill="none" opacity="0.9" transform="rotate(120 22 22)"/><circle cx="22" cy="22" r="3" fill="#ff3c00" opacity="0.9"/><circle cx="22" cy="22" r="5" stroke="#00d4ff" stroke-width="0.5" fill="none" opacity="0.5"/></svg></div>
+      <div class="viz-name">Prizma</div>
+    </div>
+  </div>
+</div>
 
 <canvas id="canvas"></canvas>
 
@@ -239,6 +445,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
         <button class="btn-ctrl btn-playlist" id="btn-playlist-toggle">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
           <span class="pl-count" id="pl-count-badge">0</span>
+        </button>
+        <!-- Vizualizácia -->
+        <button class="btn-ctrl btn-viz" id="btn-viz-toggle">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          Vizualizácia
         </button>
         <!-- Volume -->
         <div class="vol-wrap">
@@ -635,6 +846,172 @@ document.getElementById('btn-playlist-toggle').addEventListener('click',function
 });
 
 // ═══════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════
+let isMuted=false, volBeforeMute=0.8;
+
+function flashBtn(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('key-flash');
+  void el.offsetWidth; // reflow
+  el.classList.add('key-flash');
+  setTimeout(()=>el.classList.remove('key-flash'),200);
+}
+
+function adjustVolume(delta){
+  const slider=document.getElementById('vol-slider');
+  const v=Math.max(0,Math.min(1,parseFloat(slider.value)+delta));
+  slider.value=v;
+  if(gainNode) gainNode.gain.value=v;
+  if(v>0){ isMuted=false; volBeforeMute=v; }
+}
+
+function seekRelative(sec){
+  if(!playlist.length||currentIdx<0||!audioCtx) return;
+  const elapsed=isPlaying?(audioCtx.currentTime-startedAt):pausedAt;
+  const dur=playlist[currentIdx].duration;
+  const newPct=Math.max(0,Math.min(1,(elapsed+sec)/dur));
+  seekTo(newPct);
+}
+
+window.addEventListener('keydown',function(e){
+  // don't fire when typing in inputs
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+
+  switch(e.code){
+
+    // ── SPACE: play/pause ──
+    case 'Space':
+      e.preventDefault();
+      if(audioCtx||playlist.length){
+        togglePlay();
+        flashBtn('btn-play');
+      }
+      break;
+
+    // ── ARROWS: prev/next track or seek ──
+    case 'ArrowLeft':
+      e.preventDefault();
+      if(e.shiftKey){ seekRelative(-5); }
+      else { prevTrack(); flashBtn('btn-prev'); }
+      break;
+
+    case 'ArrowRight':
+      e.preventDefault();
+      if(e.shiftKey){ seekRelative(5); }
+      else { nextTrack(); flashBtn('btn-next'); }
+      break;
+
+    // ── A/D: prev/next track ──
+    case 'KeyA':
+      prevTrack(); flashBtn('btn-prev');
+      break;
+    case 'KeyD':
+      nextTrack(); flashBtn('btn-next');
+      break;
+
+    // ── ARROW UP/DOWN: volume ──
+    case 'ArrowUp':
+      e.preventDefault();
+      adjustVolume(0.05);
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      adjustVolume(-0.05);
+      break;
+
+    // ── S: stop ──
+    case 'KeyS':
+      stopAll(); flashBtn('btn-stop');
+      break;
+
+    // ── M: mute toggle ──
+    case 'KeyM':
+      if(isMuted){
+        isMuted=false;
+        document.getElementById('vol-slider').value=volBeforeMute;
+        if(gainNode) gainNode.gain.value=volBeforeMute;
+      } else {
+        volBeforeMute=parseFloat(document.getElementById('vol-slider').value)||0.8;
+        isMuted=true;
+        document.getElementById('vol-slider').value=0;
+        if(gainNode) gainNode.gain.value=0;
+      }
+      break;
+
+    // ── L: loop ──
+    case 'KeyL':{
+      const btn=document.getElementById('btn-loop');
+      btn.click(); flashBtn('btn-loop');
+      break;
+    }
+
+    // ── R: shuffle ──
+    case 'KeyR':{
+      const btn=document.getElementById('btn-shuffle');
+      btn.click(); flashBtn('btn-shuffle');
+      break;
+    }
+
+    // ── P: playlist panel ──
+    case 'KeyP':{
+      const btn=document.getElementById('btn-playlist-toggle');
+      btn.click(); flashBtn('btn-playlist-toggle');
+      break;
+    }
+
+    // ── V: viz panel ──
+    case 'KeyV':{
+      const btn=document.getElementById('btn-viz-toggle');
+      btn.click();
+      break;
+    }
+
+    // ── TAB: cycle visualizations ──
+    case 'Tab':
+      e.preventDefault();
+      if(typeof setVizMode==='function'&&typeof currentViz!=='undefined'){
+        const total=document.querySelectorAll('.viz-card').length;
+        setVizMode((currentViz+1)%total);
+      }
+      break;
+
+    // ── ? or /: help panel ──
+    case 'Slash':
+    case 'KeyH':
+      if(e.shiftKey||e.code==='Slash'){
+        const hBtn=document.getElementById('help-btn');
+        if(hBtn) hBtn.click();
+      }
+      break;
+  }
+});
+
+// ═══════════════════════════════════
+// HELP PANEL TOGGLE
+// ═══════════════════════════════════
+document.getElementById('help-btn').addEventListener('click',function(){
+  this.classList.toggle('open');
+  document.getElementById('help-panel').classList.toggle('open');
+});
+
+// Close help when clicking outside
+document.addEventListener('click',function(e){
+  const hBtn=document.getElementById('help-btn');
+  const hPanel=document.getElementById('help-panel');
+  if(!hBtn.contains(e.target)&&!hPanel.contains(e.target)){
+    hBtn.classList.remove('open');
+    hPanel.classList.remove('open');
+  }
+});
+
+// Show help button once player is active
+function showHelpBtn(){
+  document.getElementById('help-btn').style.display='flex';
+}
+
+// ═══════════════════════════════════
 // FILE INPUT
 // ═══════════════════════════════════
 document.getElementById('file-input').addEventListener('change',function(){
@@ -647,6 +1024,7 @@ document.getElementById('file-input').addEventListener('change',function(){
   document.getElementById('mode-badge').style.display='flex';
   document.getElementById('mode-text').textContent='AUDIO';
   addFilesToPlaylist(this.files);
+  showHelpBtn();
   this.value='';
 });
 
@@ -671,6 +1049,7 @@ dz.addEventListener('drop',e=>{
   document.getElementById('main-ui').style.flexDirection='column';
   document.getElementById('mode-badge').style.display='flex';
   addFilesToPlaylist(e.dataTransfer.files);
+  showHelpBtn();
 });
 
 // ═══════════════════════════════════
@@ -702,99 +1081,379 @@ function formatTime(s){
 }
 
 // ═══════════════════════════════════
-// ANIMATION
+// ANIMATION & VIZ SYSTEM
 // ═══════════════════════════════════
-const clock=new THREE.Clock();
-let sB=0,sM=0,sH=0,sV=0;
+const clock = new THREE.Clock();
+
+// Global smoothed audio bands (slow lerp = smooth)
+let sB=0, sM=0, sH=0, sV=0;
+let currentViz = 0;
+
+// Pre-allocated typed arrays (never create in animation loop)
+let timeDomArr = null;  // for oscilloscope
+const SMOOTH_SP = 0.055; // master smoothing speed
 
 function getBands(){
-  if(!analyser||!dataArray) return {bass:0,mid:0,high:0,vol:0};
+  if(!analyser||!dataArray) return {bass:0,mid:0,high:0,vol:0,raw:dataArray||new Uint8Array(0)};
   analyser.getByteFrequencyData(dataArray);
-  const len=dataArray.length;
-  const bE=Math.floor(len*0.08), mE=Math.floor(len*0.35);
+  const len=dataArray.length, bE=Math.floor(len*0.08), mE=Math.floor(len*0.35);
   let b=0,m=0,h=0,tot=0;
   for(let i=0;i<bE;i++) b+=dataArray[i];
   for(let i=bE;i<mE;i++) m+=dataArray[i];
   for(let i=mE;i<len;i++) h+=dataArray[i];
   for(let i=0;i<len;i++) tot+=dataArray[i];
-  return {bass:b/(bE*255),mid:m/((mE-bE)*255),high:h/((len-mE)*255),vol:tot/(len*255)};
+  return {bass:b/(bE*255),mid:m/((mE-bE)*255),high:h/((len-mE)*255),vol:tot/(len*255),raw:dataArray};
 }
 
-function noise(x,y,z,t){ return Math.sin(x*2.3+t)*Math.cos(y*1.7+t*0.7)*Math.sin(z*1.9+t*0.5); }
+function snoise(x,y,z,t){
+  return Math.sin(x*2.3+t)*Math.cos(y*1.7+t*0.7)*Math.sin(z*1.9+t*0.5);
+}
 
+// ─────────────────────────────────
+// VIZ 1 · VLNENIE — wave ocean
+// ─────────────────────────────────
+const WV_W=80, WV_H=40;
+let wvGeo=null, wvMat=null, wvMesh=null;
+const wvColSm = new Float32Array(WV_W).fill(0);
+
+function buildVlnenie(){
+  if(wvMesh) return;
+  wvGeo = new THREE.BufferGeometry();
+  const v=new Float32Array(WV_W*WV_H*3), idx=[];
+  for(let r=0;r<WV_H;r++) for(let c=0;c<WV_W;c++){
+    const i=r*WV_W+c;
+    v[i*3]=(c/(WV_W-1)-0.5)*18; v[i*3+1]=0; v[i*3+2]=(r/(WV_H-1)-0.5)*9;
+    if(r<WV_H-1&&c<WV_W-1){idx.push(i,i+WV_W,i+1);idx.push(i+1,i+WV_W,i+WV_W+1);}
+  }
+  wvGeo.setAttribute('position',new THREE.BufferAttribute(v,3));
+  wvGeo.setIndex(idx);
+  wvMat=new THREE.MeshBasicMaterial({color:0xff3c00,wireframe:true,transparent:true,opacity:0.4});
+  wvMesh=new THREE.Mesh(wvGeo,wvMat);
+  scene.add(wvMesh);
+}
+
+// ─────────────────────────────────
+// VIZ 2 · GALAXIA — spiral galaxy
+// ─────────────────────────────────
+const GAL_N=7000;
+let galPts=null, galGeo=null, galMat=null;
+let galOrig=new Float32Array(GAL_N*3), galPhase=new Float32Array(GAL_N), galR=new Float32Array(GAL_N);
+
+function buildGalaxia(){
+  if(galPts) return;
+  galGeo=new THREE.BufferGeometry();
+  const pos=new Float32Array(GAL_N*3), cols=new Float32Array(GAL_N*3);
+  for(let i=0;i<GAL_N;i++){
+    const arm=i%3;
+    const r=0.15+Math.pow(Math.random(),0.65)*5.2;
+    const spread=Math.max(0.04,0.5*(1-r/5.5));
+    const theta=arm*(Math.PI*2/3)+r*0.6+(Math.random()-0.5)*spread;
+    const x=r*Math.cos(theta)+(Math.random()-0.5)*0.18;
+    const y=(Math.random()-0.5)*0.28*(1-r/6);
+    const z=r*Math.sin(theta)+(Math.random()-0.5)*0.18;
+    pos[i*3]=galOrig[i*3]=x; pos[i*3+1]=galOrig[i*3+1]=y; pos[i*3+2]=galOrig[i*3+2]=z;
+    galPhase[i]=Math.random()*Math.PI*2; galR[i]=r;
+    const t2=r/5.2;
+    cols[i*3]=1.0-t2*0.45; cols[i*3+1]=t2*0.55; cols[i*3+2]=t2*0.95;
+  }
+  galGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  galGeo.setAttribute('color',new THREE.BufferAttribute(cols,3));
+  galMat=new THREE.PointsMaterial({size:0.028,transparent:true,opacity:0.8,vertexColors:true,sizeAttenuation:true});
+  galPts=new THREE.Points(galGeo,galMat);
+  scene.add(galPts);
+}
+
+// ─────────────────────────────────
+// VIZ 3 · OSCILÁTOR — CRT scope
+// ─────────────────────────────────
+const OSC_N=1024;
+let oscLine=null, oscGeo=null, oscMat=null;
+let oscGlow=null, oscGlowGeo=null, oscGlowMat=null;
+let oscAmpSm=0;
+
+function buildOscilator(){
+  if(oscLine) return;
+  oscGeo=new THREE.BufferGeometry();
+  const pts=new Float32Array(OSC_N*3);
+  for(let i=0;i<OSC_N;i++) pts[i*3]=(i/(OSC_N-1)-0.5)*14;
+  oscGeo.setAttribute('position',new THREE.BufferAttribute(pts,3));
+  oscMat=new THREE.LineBasicMaterial({color:0x00d4ff,transparent:true,opacity:1.0});
+  oscLine=new THREE.Line(oscGeo,oscMat);
+  scene.add(oscLine);
+  oscGlowGeo=new THREE.BufferGeometry();
+  const gpts=new Float32Array(OSC_N*3);
+  for(let i=0;i<OSC_N;i++) gpts[i*3]=(i/(OSC_N-1)-0.5)*14;
+  oscGlowGeo.setAttribute('position',new THREE.BufferAttribute(gpts,3));
+  oscGlowMat=new THREE.LineBasicMaterial({color:0x00d4ff,transparent:true,opacity:0.13});
+  oscGlow=new THREE.Line(oscGlowGeo,oscGlowMat);
+  oscGlow.scale.y=1.08;
+  scene.add(oscGlow);
+}
+
+// ─────────────────────────────────
+// VIZ 4 · SPEKTRUM — radial bars
+// ─────────────────────────────────
+const SPEC_N=128;
+let specGrp=null, specMeshes=[], specMats=[];
+const specSm=new Float32Array(SPEC_N).fill(0);
+
+function buildSpektrum(){
+  if(specGrp) return;
+  specGrp=new THREE.Group(); scene.add(specGrp);
+  for(let i=0;i<SPEC_N;i++){
+    const angle=(i/SPEC_N)*Math.PI*2;
+    const isLo=i<SPEC_N/2;
+    const bGeo=new THREE.PlaneGeometry(0.055,1);
+    bGeo.translate(0,0.5,0);
+    const bMat=new THREE.MeshBasicMaterial({color:isLo?0xff3c00:0x00d4ff,transparent:true,opacity:0.85,side:THREE.DoubleSide});
+    const bar=new THREE.Mesh(bGeo,bMat);
+    const R=1.9;
+    bar.position.set(Math.cos(angle)*R,Math.sin(angle)*R,0);
+    bar.rotation.z=-angle+Math.PI/2;
+    specGrp.add(bar); specMeshes.push(bar); specMats.push(bMat);
+  }
+  const dGeo=new THREE.CircleGeometry(1.9,128);
+  specGrp._dMat=new THREE.MeshBasicMaterial({color:0xff3c00,transparent:true,opacity:0.025,side:THREE.DoubleSide});
+  specGrp.add(new THREE.Mesh(dGeo,specGrp._dMat));
+}
+
+// ─────────────────────────────────
+// VIZ 5 · DNA — double helix
+// ─────────────────────────────────
+const DNA_N=90;
+let dnaGrp=null, dnaA=[], dnaB=[], dnaRungs=[];
+const dnaSm=new Float32Array(DNA_N).fill(0);
+
+function buildDNA(){
+  if(dnaGrp) return;
+  dnaGrp=new THREE.Group(); scene.add(dnaGrp);
+  for(let i=0;i<DNA_N;i++){
+    const t2=i/DNA_N, angle=t2*Math.PI*10, y=(t2-0.5)*10, r=1.05;
+    const mA=new THREE.MeshPhongMaterial({color:0xff3c00,emissive:0xff1a00,emissiveIntensity:0.25,transparent:true,opacity:0.9});
+    const mB=new THREE.MeshPhongMaterial({color:0x00d4ff,emissive:0x0099cc,emissiveIntensity:0.25,transparent:true,opacity:0.9});
+    const sA=new THREE.Mesh(new THREE.SphereGeometry(0.065,8,8),mA);
+    const sB2=new THREE.Mesh(new THREE.SphereGeometry(0.065,8,8),mB);
+    sA.position.set(r*Math.cos(angle),y,r*Math.sin(angle));
+    sB2.position.set(r*Math.cos(angle+Math.PI),y,r*Math.sin(angle+Math.PI));
+    dnaGrp.add(sA); dnaGrp.add(sB2); dnaA.push(sA); dnaB.push(sB2);
+    if(i%6===0){
+      const lm=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.12});
+      const lg=new THREE.BufferGeometry().setFromPoints([sA.position.clone(),sB2.position.clone()]);
+      const l=new THREE.Line(lg,lm); dnaGrp.add(l); dnaRungs.push(l);
+    }
+  }
+}
+
+// ─────────────────────────────────
+// VIZ 6 · TUNEL — neon speed tunnel
+// ─────────────────────────────────
+const TUN_N=36;
+const TUN_SPAN=90;
+let tunGrp=null, tunMeshes=[], tunMats=[];
+
+function buildTunel(){
+  if(tunGrp) return;
+  tunGrp=new THREE.Group(); scene.add(tunGrp);
+  for(let i=0;i<TUN_N;i++){
+    const isOdd=i%2===0;
+    const mat=new THREE.MeshBasicMaterial({color:isOdd?0xff3c00:0x00d4ff,wireframe:true,transparent:true,opacity:0.6});
+    const mesh2=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.013,6,90),mat);
+    mesh2.position.z=-i*(TUN_SPAN/TUN_N);
+    tunGrp.add(mesh2); tunMeshes.push(mesh2); tunMats.push(mat);
+  }
+}
+
+// ─────────────────────────────────
+// VIZ 7 · AURORA — northern lights
+// ─────────────────────────────────
+const AUR_W=120, AUR_H=16;
+let aurGeo=null, aurMat=null, aurMesh=null, aurColAttr=null;
+const aurColSm=new Float32Array(AUR_W).fill(0);
+
+function buildAurora(){
+  if(aurMesh) return;
+  aurGeo=new THREE.BufferGeometry();
+  const v=new Float32Array(AUR_W*AUR_H*3), c=new Float32Array(AUR_W*AUR_H*3), idx=[];
+  for(let r=0;r<AUR_H;r++) for(let col=0;col<AUR_W;col++){
+    const i=r*AUR_W+col;
+    v[i*3]=(col/(AUR_W-1)-0.5)*22; v[i*3+1]=(r/(AUR_H-1)-0.5)*5; v[i*3+2]=0;
+    const t2=r/(AUR_H-1);
+    c[i*3]=1.0-t2*0.65; c[i*3+1]=t2*0.55; c[i*3+2]=t2*0.9;
+    if(r<AUR_H-1&&col<AUR_W-1){idx.push(i,i+AUR_W,i+1);idx.push(i+1,i+AUR_W,i+AUR_W+1);}
+  }
+  aurGeo.setAttribute('position',new THREE.BufferAttribute(v,3));
+  aurGeo.setAttribute('color',new THREE.BufferAttribute(c,3));
+  aurGeo.setIndex(idx);
+  aurColAttr=aurGeo.attributes.color;
+  aurMat=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:0.7,side:THREE.DoubleSide});
+  aurMesh=new THREE.Mesh(aurGeo,aurMat);
+  scene.add(aurMesh);
+}
+
+// ─────────────────────────────────
+// VIZ 8 · KRYŠTÁL — crystal icosahedron
+// ─────────────────────────────────
+let kryGeo=null, kryMat=null, kryMesh=null, kryWire=null, kryWireMat=null;
+let kryOrigPos=null, kryBassSm=0;
+
+function buildKrystal(){
+  if(kryMesh) return;
+  kryGeo=new THREE.IcosahedronGeometry(1.7,2);
+  kryOrigPos=new Float32Array(kryGeo.attributes.position.array);
+  kryMat=new THREE.MeshPhongMaterial({color:0x040412,emissive:0x000a1a,specular:0xffffff,shininess:220,transparent:true,opacity:0.88,side:THREE.FrontSide});
+  kryMesh=new THREE.Mesh(kryGeo,kryMat); scene.add(kryMesh);
+  kryWireMat=new THREE.MeshBasicMaterial({color:0x00d4ff,wireframe:true,transparent:true,opacity:0.38});
+  kryWire=new THREE.Mesh(new THREE.IcosahedronGeometry(1.73,2),kryWireMat); scene.add(kryWire);
+}
+
+// ─────────────────────────────────
+// VIZ 9 · LÚČE — radial beams
+// ─────────────────────────────────
+const LUC_N=80;
+let lucGrp=null, lucMeshes=[], lucMats=[];
+const lucSm=new Float32Array(LUC_N).fill(0);
+
+function buildLuce(){
+  if(lucGrp) return;
+  lucGrp=new THREE.Group(); scene.add(lucGrp);
+  for(let i=0;i<LUC_N;i++){
+    const is3=i%3;
+    const col=is3===0?0xff3c00:is3===1?0x00d4ff:0xff7700;
+    const bGeo=new THREE.CylinderGeometry(0.002,0.012,1,4);
+    bGeo.translate(0,0.5,0);
+    const bMat=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.8});
+    const ray=new THREE.Mesh(bGeo,bMat);
+    const angle=(i/LUC_N)*Math.PI*2;
+    ray.rotation.z=-angle-Math.PI/2;
+    lucGrp.add(ray); lucMeshes.push(ray); lucMats.push(bMat);
+  }
+}
+
+// ─────────────────────────────────
+// VIZ 10 · PRACH — particle nebula
+// ─────────────────────────────────
+const DUST_N=6000;
+let dustPts=null, dustGeo=null, dustMat=null;
+let dustOrig=new Float32Array(DUST_N*3), dustPhase=new Float32Array(DUST_N), dustRad=new Float32Array(DUST_N);
+let dustBassSm=0;
+
+function buildPrach(){
+  if(dustPts) return;
+  dustGeo=new THREE.BufferGeometry();
+  const pos=new Float32Array(DUST_N*3), cols=new Float32Array(DUST_N*3);
+  for(let i=0;i<DUST_N;i++){
+    const r=Math.pow(Math.random(),0.45)*5;
+    const theta=Math.random()*Math.PI*2, phi=(Math.random()-0.5)*0.55;
+    const x=r*Math.cos(theta), y=r*Math.sin(phi), z=r*Math.sin(theta);
+    pos[i*3]=dustOrig[i*3]=x; pos[i*3+1]=dustOrig[i*3+1]=y; pos[i*3+2]=dustOrig[i*3+2]=z;
+    dustPhase[i]=Math.random()*Math.PI*2; dustRad[i]=r;
+    const t2=r/5; cols[i*3]=1-t2*0.5; cols[i*3+1]=t2*0.38; cols[i*3+2]=t2*0.82;
+  }
+  dustGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  dustGeo.setAttribute('color',new THREE.BufferAttribute(cols,3));
+  dustMat=new THREE.PointsMaterial({size:0.024,transparent:true,opacity:0.75,vertexColors:true,sizeAttenuation:true});
+  dustPts=new THREE.Points(dustGeo,dustMat); scene.add(dustPts);
+}
+
+// ─────────────────────────────────
+// VIZ 11 · PRIZMA — gyroscope rings
+// ─────────────────────────────────
+let priGrp=null, priRings=[], priMats=[], priInner=null, priInnerMat=null;
+const priSm=[0,0,0,0,0];
+
+function buildPrizma(){
+  if(priGrp) return;
+  priGrp=new THREE.Group(); scene.add(priGrp);
+  const cfgs=[
+    {r:1.1,col:0xff3c00,rx:0,ry:0,rz:0},
+    {r:1.7,col:0x00d4ff,rx:Math.PI/3,ry:0,rz:0},
+    {r:2.3,col:0xff6600,rx:0,ry:Math.PI/4,rz:0},
+    {r:2.9,col:0x00aaff,rx:Math.PI/5,ry:Math.PI/3,rz:0},
+    {r:3.6,col:0xff3c00,rx:Math.PI/2.5,ry:Math.PI/5,rz:Math.PI/6},
+  ];
+  cfgs.forEach((cfg,i)=>{
+    const rGrp=new THREE.Group();
+    rGrp.rotation.set(cfg.rx,cfg.ry,cfg.rz);
+    const mat=new THREE.MeshBasicMaterial({color:cfg.col,wireframe:true,transparent:true,opacity:0.65});
+    rGrp.add(new THREE.Mesh(new THREE.TorusGeometry(cfg.r,0.012,6,120),mat));
+    priGrp.add(rGrp); priRings.push(rGrp); priMats.push(mat);
+  });
+  priInnerMat=new THREE.MeshPhongMaterial({color:0xff3c00,emissive:0xff1100,emissiveIntensity:0.6,transparent:true,opacity:0.92});
+  priInner=new THREE.Mesh(new THREE.IcosahedronGeometry(0.45,1),priInnerMat);
+  priGrp.add(priInner);
+}
+
+// ═══════════════════════════════════
+// VISIBILITY MANAGEMENT
+// ═══════════════════════════════════
+const mainObjs=[mesh,wireMesh,innerMesh,ring1,ring2];
+
+function hideAll(){
+  mainObjs.forEach(o=>o.visible=false);
+  pMat.opacity=0;
+  if(wvMesh) wvMesh.visible=false;
+  if(galPts) galPts.visible=false;
+  if(oscLine){oscLine.visible=false; if(oscGlow)oscGlow.visible=false;}
+  if(specGrp) specGrp.visible=false;
+  if(dnaGrp) dnaGrp.visible=false;
+  if(tunGrp) tunGrp.visible=false;
+  if(aurMesh) aurMesh.visible=false;
+  if(kryMesh){kryMesh.visible=false; if(kryWire)kryWire.visible=false;}
+  if(lucGrp) lucGrp.visible=false;
+  if(dustPts) dustPts.visible=false;
+  if(priGrp) priGrp.visible=false;
+}
+
+function setVizMode(idx){
+  currentViz=idx;
+  hideAll();
+  camera.position.set(0,0,5.5); camera.lookAt(0,0,0);
+  camera.fov=55; camera.updateProjectionMatrix();
+  scene.fog.density=0.04;
+  ambLight.intensity=0.1;
+  if(idx===0){ mainObjs.forEach(o=>o.visible=true); }
+  else if(idx===1){ buildVlnenie(); wvMesh.visible=true; }
+  else if(idx===2){ buildGalaxia(); galPts.visible=true; scene.fog.density=0.01; }
+  else if(idx===3){
+    buildOscilator();
+    if(!timeDomArr&&analyser) timeDomArr=new Uint8Array(analyser.fftSize);
+    oscLine.visible=true; oscGlow.visible=true;
+    ambLight.intensity=0;
+    scene.fog.density=0.0;
+  }
+  else if(idx===4){ buildSpektrum(); specGrp.visible=true; }
+  else if(idx===5){ buildDNA(); dnaGrp.visible=true; }
+  else if(idx===6){
+    buildTunel(); tunGrp.visible=true;
+    camera.position.set(0,0,3); camera.lookAt(0,0,-8);
+    scene.fog.density=0.015;
+  }
+  else if(idx===7){ buildAurora(); aurMesh.visible=true; camera.position.set(0,0,10); }
+  else if(idx===8){ buildKrystal(); kryMesh.visible=true; kryWire.visible=true; }
+  else if(idx===9){ buildLuce(); lucGrp.visible=true; }
+  else if(idx===10){ buildPrach(); dustPts.visible=true; scene.fog.density=0.02; }
+  else if(idx===11){ buildPrizma(); priGrp.visible=true; }
+  document.querySelectorAll('.viz-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+}
+
+// ═══════════════════════════════════
+// MAIN ANIMATION LOOP
+// ═══════════════════════════════════
 function animate(){
   requestAnimationFrame(animate);
   const t=clock.getElapsedTime();
-  const {bass,mid,high,vol}=getBands();
-  const sp=0.1;
+  const {bass,mid,high,vol,raw}=getBands();
+  const sp=SMOOTH_SP;
   sB+=(bass-sB)*sp; sM+=(mid-sM)*sp; sH+=(high-sH)*sp; sV+=(vol-sV)*sp;
-  const hasAudio=sV>0.004;
-  const hue=(t*15+sB*80)%360;
+  const hue=(t*11+sB*55)%360;
 
-  // ── DEFORM SPHERE ──
-  const arr=posAttr.array;
-  for(let i=0;i<arr.length;i+=3){
-    const ox=origPos[i],oy=origPos[i+1],oz=origPos[i+2];
-    const d=hasAudio
-      ? sB*0.7*noise(ox,oy,oz,t*0.5)
-      + sM*0.35*noise(ox*2,oy*2,oz*2,t*1.1)
-      + sH*0.15*noise(ox*4,oy*4,oz*4,t*1.9)
-      : 0.04*noise(ox,oy,oz,t*0.25);
-    const l=Math.sqrt(ox*ox+oy*oy+oz*oz)||1;
-    arr[i]=ox+(ox/l)*d; arr[i+1]=oy+(oy/l)*d; arr[i+2]=oz+(oz/l)*d;
-  }
-  posAttr.needsUpdate=true; geo.computeVertexNormals();
+  // shared lights
+  light1.intensity=2+sB*8; light2.intensity=2+sH*6;
+  light3.intensity=1+sM*5; light4.intensity=1+sB*3;
+  light3.color.setHSL(hue/360,1,0.6); light4.color.setHSL((hue+120)/360,1,0.6);
 
-  // ── COLORS ──
-  mat.emissive.setHSL(hue/360, 0.9, sV*0.25);
-  mat.color.setHSL((hue+180)/360, 0.2, 0.04+sB*0.1);
-  innerMat.color.setHSL(hue/360, 1, 0.6);
-  innerMat.opacity=0.04+sB*0.14;
-  wireMat.opacity=0.03+sH*0.08;
-
-  // ── LIGHTS ──
-  light1.intensity=3+sB*10; light2.intensity=3+sH*8;
-  light3.intensity=2+sM*6;  light4.intensity=1+sB*4;
-  light1.color.setHSL(0.04, 1, 0.6);      // orange — fixed
-  light2.color.setHSL(0.54, 1, 0.6);      // cyan — fixed
-  light3.color.setHSL(hue/360, 1, 0.6);   // dynamic
-  light4.color.setHSL((hue+120)/360, 1, 0.6);
-
-  // ── ROTATE ──
-  const rs=0.003+sB*0.015;
-  mesh.rotation.y+=rs; mesh.rotation.x+=rs*0.35;
-  wireMesh.rotation.y-=rs*0.5; wireMesh.rotation.z+=rs*0.2;
-  innerMesh.rotation.y+=rs*0.8;
-
-  // ── RINGS ──
-  ring1.rotation.z+=0.004+sM*0.018; ring1.rotation.x+=0.002;
-  ring2.rotation.y+=0.003+sH*0.014;
-  ring1.scale.setScalar(1+sB*0.28);
-  ring2.scale.setScalar(1+sM*0.18);
-  ring1Mat.opacity=0.15+sB*0.45;
-  ring2Mat.opacity=0.1+sM*0.35;
-
-  // ── PARTICLES ──
-  const pp=pGeo.attributes.position.array;
-  for(let i=0;i<PCNT;i++){
-    const ox=pOrig[i*3],oy=pOrig[i*3+1],oz=pOrig[i*3+2];
-    const ph=pPhase[i];
-    pp[i*3]  =ox+Math.sin(t*0.7+ph)*0.05+ox*sB*0.12;
-    pp[i*3+1]=oy+Math.cos(t*0.55+ph)*0.05+oy*sB*0.12;
-    pp[i*3+2]=oz+Math.sin(t*0.45+ph+1)*0.05+oz*sB*0.12;
-  }
-  pGeo.attributes.position.needsUpdate=true;
-  pMat.opacity=0.2+sH*0.5;
-  pMat.color.setHSL(0.04, 1, 0.6); // orange — matches accent
-
-  // ── CAMERA ──
-  camera.position.x=Math.sin(t*0.17)*0.3+sB*0.4;
-  camera.position.y=Math.cos(t*0.12)*0.25;
-  camera.position.z=5.5-sV*0.4;
-  camera.lookAt(0,0,0);
-
-  // Update progress bar
-  if(isPlaying && !isMicMode && currentIdx>=0 && audioCtx){
+  // progress bar
+  if(isPlaying&&!isMicMode&&currentIdx>=0&&audioCtx){
     const elapsed=audioCtx.currentTime-startedAt;
     const dur=playlist[currentIdx].duration;
     const pct=Math.min(elapsed/dur,1);
@@ -805,10 +1464,354 @@ function animate(){
     }
   }
 
+  // ══ 0 · SKULPTÚRA ══
+  if(currentViz===0){
+    const arr=posAttr.array;
+    for(let i=0;i<arr.length;i+=3){
+      const ox=origPos[i],oy=origPos[i+1],oz=origPos[i+2];
+      const d=sV>0.003
+        ? sB*0.68*snoise(ox,oy,oz,t*0.48)+sM*0.33*snoise(ox*2,oy*2,oz*2,t*1.05)+sH*0.14*snoise(ox*4,oy*4,oz*4,t*1.85)
+        : 0.035*snoise(ox,oy,oz,t*0.22);
+      const l=Math.sqrt(ox*ox+oy*oy+oz*oz)||1;
+      arr[i]=ox+(ox/l)*d; arr[i+1]=oy+(oy/l)*d; arr[i+2]=oz+(oz/l)*d;
+    }
+    posAttr.needsUpdate=true; geo.computeVertexNormals();
+    mat.emissive.setHSL(hue/360,0.9,sV*0.22);
+    mat.color.setHSL((hue+180)/360,0.2,0.035+sB*0.09);
+    innerMat.color.setHSL(hue/360,1,0.6); innerMat.opacity=0.04+sB*0.13;
+    wireMat.opacity=0.025+sH*0.07;
+    light1.color.setHSL(0.04,1,0.6); light2.color.setHSL(0.54,1,0.6);
+    const rs=0.003+sB*0.011;
+    mesh.rotation.y+=rs; mesh.rotation.x+=rs*0.33;
+    wireMesh.rotation.y-=rs*0.5; wireMesh.rotation.z+=rs*0.2;
+    innerMesh.rotation.y+=rs*0.75;
+    ring1.rotation.z+=0.004+sM*0.014; ring1.rotation.x+=0.002;
+    ring2.rotation.y+=0.003+sH*0.011;
+    ring1.scale.setScalar(1+sB*0.26); ring2.scale.setScalar(1+sM*0.17);
+    ring1Mat.opacity=0.14+sB*0.42; ring2Mat.opacity=0.09+sM*0.32;
+    const pp=pGeo.attributes.position.array;
+    for(let i=0;i<PCNT;i++){
+      const ox=pOrig[i*3],oy=pOrig[i*3+1],oz=pOrig[i*3+2], ph=pPhase[i];
+      pp[i*3]=ox+Math.sin(t*0.68+ph)*0.05+ox*sB*0.1;
+      pp[i*3+1]=oy+Math.cos(t*0.53+ph)*0.05+oy*sB*0.1;
+      pp[i*3+2]=oz+Math.sin(t*0.43+ph+1)*0.05+oz*sB*0.1;
+    }
+    pGeo.attributes.position.needsUpdate=true;
+    pMat.opacity=0.14+sH*0.42;
+    camera.position.x=Math.sin(t*0.16)*0.28+sB*0.32;
+    camera.position.y=Math.cos(t*0.11)*0.22;
+    camera.position.z=5.5-sV*0.38;
+    camera.lookAt(0,0,0);
+  }
+
+  // ══ 1 · VLNENIE ══
+  else if(currentViz===1){
+    if(wvGeo&&raw.length){
+      const va=wvGeo.attributes.position.array, fL=raw.length;
+      for(let c=0;c<WV_W;c++){
+        const fi=Math.floor((c/WV_W)*fL*0.65);
+        wvColSm[c]+=(((raw[fi]||0)/255)-wvColSm[c])*0.07;
+      }
+      for(let r=0;r<WV_H;r++) for(let c=0;c<WV_W;c++){
+        const i=r*WV_W+c, amp=wvColSm[c];
+        const tr=r/(WV_H-1);
+        va[i*3+1]=amp*2.4*Math.sin(c*0.16-t*1.9)*Math.cos(r*0.32-t*0.75)
+                 +sB*0.55*Math.sin(c*0.07+t*1.1+r*0.11);
+      }
+      wvGeo.attributes.position.needsUpdate=true;
+      wvGeo.computeVertexNormals();
+      wvMat.color.setHSL(hue/360,1,0.54);
+      wvMat.opacity=0.2+sV*0.38;
+      wvMesh.rotation.x=-0.52+sB*0.07;
+      wvMesh.rotation.y=t*0.045;
+    }
+    camera.position.set(Math.sin(t*0.085)*1.2, 4+sB*0.55, 5.5+sM*0.4);
+    camera.lookAt(0,0,0);
+  }
+
+  // ══ 2 · GALAXIA ══
+  else if(currentViz===2){
+    if(galGeo){
+      const gp=galGeo.attributes.position.array;
+      for(let i=0;i<GAL_N;i++){
+        const r=galR[i], ph=galPhase[i];
+        const ox=galOrig[i*3], oz=galOrig[i*3+2];
+        const spin=0.016/(r*0.45+0.12);
+        const a0=Math.atan2(oz,ox);
+        const newA=a0+t*spin+sB*0.1*Math.sin(ph);
+        const pulse=1+sB*0.1*Math.sin(ph+t*1.8);
+        gp[i*3]=r*pulse*Math.cos(newA);
+        gp[i*3+1]=galOrig[i*3+1]+Math.sin(ph+t*0.9)*0.025*sM;
+        gp[i*3+2]=r*pulse*Math.sin(newA);
+      }
+      galGeo.attributes.position.needsUpdate=true;
+      galMat.opacity=0.62+sH*0.22;
+      galPts.rotation.x=Math.sin(t*0.055)*0.08;
+    }
+    camera.position.set(Math.sin(t*0.065)*1.2,3.2+sV*0.7,3.5);
+    camera.lookAt(0,0,0);
+  }
+
+  // ══ 3 · OSCILÁTOR ══
+  else if(currentViz===3){
+    if(!timeDomArr&&analyser) timeDomArr=new Uint8Array(analyser.fftSize);
+    if(oscGeo&&timeDomArr&&analyser){
+      analyser.getByteTimeDomainData(timeDomArr);
+      oscAmpSm+=(1+sB*0.85-oscAmpSm)*0.055;
+      const oa=oscGeo.attributes.position.array;
+      const step=Math.max(1,Math.floor(timeDomArr.length/OSC_N));
+      for(let i=0;i<OSC_N;i++){
+        const v=(timeDomArr[Math.min(i*step,timeDomArr.length-1)]||128)/128-1;
+        oa[i*3+1]=v*2.5*oscAmpSm;
+        oa[i*3+2]=0;
+      }
+      oscGeo.attributes.position.needsUpdate=true;
+      oscMat.color.setHSL(0.54-sB*0.5,1,0.62+sV*0.12);
+      oscMat.opacity=0.88+sV*0.12;
+      if(oscGlowGeo){
+        const ga=oscGlowGeo.attributes.position.array;
+        for(let i=0;i<OSC_N;i++){
+          ga[i*3+1]=oa[i*3+1]; ga[i*3+2]=0.08;
+        }
+        oscGlowGeo.attributes.position.needsUpdate=true;
+        oscGlowMat.color.setHSL(0.54-sB*0.5,1,0.7);
+        oscGlowMat.opacity=0.1+sV*0.09;
+      }
+    }
+    camera.position.set(0,Math.sin(t*0.13)*0.18,8);
+    camera.lookAt(0,0,0);
+    // dim lights for CRT feel
+    light1.intensity=0; light2.intensity=0; light3.intensity=0; light4.intensity=0;
+  }
+
+  // ══ 4 · SPEKTRUM ══
+  else if(currentViz===4){
+    if(specMeshes.length&&raw.length){
+      const fL=raw.length;
+      for(let i=0;i<SPEC_N;i++){
+        const fi=Math.floor((i/SPEC_N)*fL*0.82);
+        const amp=(raw[fi]||0)/255;
+        specSm[i]+=(amp-specSm[i])*0.09;
+        specMeshes[i].scale.y=0.04+specSm[i]*4.0;
+        const h=(i/SPEC_N)*0.5+(sB>0.28?0.04:0.54);
+        specMats[i].color.setHSL(h,1,0.5+specSm[i]*0.22);
+        specMats[i].opacity=0.3+specSm[i]*0.65;
+      }
+      specGrp.rotation.z=t*0.04;
+      if(specGrp._dMat) specGrp._dMat.opacity=0.015+sB*0.07;
+    }
+    camera.position.set(Math.sin(t*0.09)*0.4,Math.cos(t*0.07)*0.35,7.5-sV*0.55);
+    camera.lookAt(0,0,0);
+  }
+
+  // ══ 5 · DNA ══
+  else if(currentViz===5){
+    if(dnaGrp){
+      const fL=raw.length||1;
+      dnaGrp.rotation.y=t*0.18; dnaGrp.rotation.x=Math.sin(t*0.1)*0.1;
+      for(let i=0;i<DNA_N;i++){
+        const fi=Math.floor((i/DNA_N)*fL*0.65);
+        const amp=(raw[fi]||0)/255;
+        dnaSm[i]+=(amp-dnaSm[i])*0.07;
+        const angle=(i/DNA_N)*Math.PI*10+t*0.32;
+        const y=(i/DNA_N-0.5)*10;
+        const r=1.05+dnaSm[i]*0.75;
+        dnaA[i].position.set(r*Math.cos(angle),y,r*Math.sin(angle));
+        dnaB[i].position.set(r*Math.cos(angle+Math.PI),y,r*Math.sin(angle+Math.PI));
+        const glow=0.18+dnaSm[i]*0.65;
+        dnaA[i].material.emissiveIntensity=glow;
+        dnaB[i].material.emissiveIntensity=glow;
+        const sc=0.75+dnaSm[i]*1.3;
+        dnaA[i].scale.setScalar(sc); dnaB[i].scale.setScalar(sc);
+      }
+      dnaRungs.forEach(l=>l.material.opacity=0.06+sM*0.18);
+      camera.position.set(Math.sin(t*0.08)*1.8,Math.cos(t*0.065)*0.7,7.5);
+      camera.lookAt(0,0,0);
+      light1.intensity=2+sB*8; light2.intensity=2+sH*6;
+    }
+  }
+
+  // ══ 6 · TUNEL ══
+  else if(currentViz===6){
+    if(tunMeshes.length){
+      const spd=1.0+sB*2.2+sV*0.6;
+      const STEP=TUN_SPAN/TUN_N;
+      for(let i=0;i<TUN_N;i++){
+        tunMeshes[i].position.z+=spd*0.016;
+        if(tunMeshes[i].position.z>3.5) tunMeshes[i].position.z-=TUN_SPAN;
+        const z=tunMeshes[i].position.z;
+        const norm=Math.max(0,Math.min(1,(z+(TUN_SPAN-3.5))/TUN_SPAN));
+        const isOdd=i%2===0;
+        tunMats[i].color.setHSL(isOdd?0.04+sH*0.06:0.54-sB*0.05,1,0.48+norm*0.32);
+        tunMats[i].opacity=0.08+norm*norm*0.82*(0.25+sV*0.75);
+        const sc=1+sB*0.28*norm;
+        tunMeshes[i].scale.set(sc,sc,1);
+        tunMeshes[i].rotation.z+=0.002*(isOdd?1:-1)+sM*0.001;
+      }
+      camera.position.set(Math.sin(t*0.2)*sM*0.28,Math.cos(t*0.15)*sH*0.22,2);
+      camera.lookAt(0,0,-8);
+      light1.intensity=1+sB*4; light2.intensity=1+sH*3;
+    }
+  }
+
+  // ══ 7 · AURORA ══
+  else if(currentViz===7){
+    if(aurGeo){
+      const va=aurGeo.attributes.position.array, ca=aurColAttr.array, fL=raw.length||1;
+      for(let c2=0;c2<AUR_W;c2++){
+        const fi=Math.floor((c2/AUR_W)*fL*0.72);
+        aurColSm[c2]+=(((raw[fi]||0)/255)-aurColSm[c2])*0.065;
+      }
+      for(let r=0;r<AUR_H;r++) for(let c2=0;c2<AUR_W;c2++){
+        const i=r*AUR_W+c2, amp=aurColSm[c2], tr=r/(AUR_H-1);
+        va[i*3+1]=(tr-0.5)*5
+          +amp*Math.sin(c2*0.12+t*1.1+r*0.38)*1.4*tr
+          +Math.sin(c2*0.07-t*0.65)*0.55*tr
+          +sB*0.4*Math.sin(c2*0.25+t*1.8)*tr;
+        va[i*3+2]=Math.sin(c2*0.09+t*0.42)*0.35*tr;
+        const bright=0.35+amp*0.65*tr;
+        ca[i*3]=bright*(1.0-tr*0.6+sB*0.18);
+        ca[i*3+1]=bright*(tr*0.48+sH*0.18);
+        ca[i*3+2]=bright*(tr*0.88+sM*0.08);
+      }
+      aurGeo.attributes.position.needsUpdate=true;
+      aurColAttr.needsUpdate=true;
+      aurMat.opacity=0.52+sV*0.28;
+      aurMesh.rotation.y=Math.sin(t*0.07)*0.12;
+      camera.position.set(Math.sin(t*0.055)*0.8,Math.sin(t*0.04)*0.4,10);
+      camera.lookAt(0,0,0);
+      light1.intensity=1+sB*5; light2.intensity=1+sH*4;
+    }
+  }
+
+  // ══ 8 · KRYŠTÁL ══
+  else if(currentViz===8){
+    kryBassSm+=(sB-kryBassSm)*0.045;
+    if(kryGeo){
+      const arr=kryGeo.attributes.position.array;
+      for(let i=0;i<arr.length;i+=3){
+        const ox=kryOrigPos[i],oy=kryOrigPos[i+1],oz=kryOrigPos[i+2];
+        const d=kryBassSm*0.42*snoise(ox,oy,oz,t*0.55)+sH*0.14*snoise(ox*3,oy*3,oz*3,t*1.75);
+        const l=Math.sqrt(ox*ox+oy*oy+oz*oz)||1;
+        arr[i]=ox+(ox/l)*d; arr[i+1]=oy+(oy/l)*d; arr[i+2]=oz+(oz/l)*d;
+      }
+      kryGeo.attributes.position.needsUpdate=true;
+      kryGeo.computeVertexNormals();
+      kryMat.emissive.setHSL(hue/360,0.9,kryBassSm*0.28);
+      kryMat.color.setHSL((hue+180)/360,0.12,0.03+kryBassSm*0.06);
+      kryWireMat.color.setHSL(0.54,1,0.6);
+      kryWireMat.opacity=0.18+sH*0.45;
+    }
+    const rx=t*0.17+sM*0.08, ry=t*0.23+sB*0.12;
+    kryMesh.rotation.x=rx; kryMesh.rotation.y=ry;
+    kryWire.rotation.x=rx; kryWire.rotation.y=ry;
+    camera.position.set(Math.sin(t*0.11)*0.45,Math.cos(t*0.09)*0.35,5.5-sV*0.45);
+    camera.lookAt(0,0,0);
+    light1.intensity=3+sB*12; light2.intensity=3+sH*9; light3.intensity=2+sM*7; light4.intensity=2+sB*5;
+    light1.color.setHSL(0.04,1,0.6); light2.color.setHSL(0.54,1,0.6);
+  }
+
+  // ══ 9 · LÚČE ══
+  else if(currentViz===9){
+    if(lucMeshes.length&&raw.length){
+      const fL=raw.length;
+      for(let i=0;i<LUC_N;i++){
+        const fi=Math.floor((i/LUC_N)*fL*0.78);
+        const amp=(raw[fi]||0)/255;
+        lucSm[i]+=(amp-lucSm[i])*0.09;
+        lucMeshes[i].scale.y=0.04+lucSm[i]*5.5;
+        const angle=(i/LUC_N)*Math.PI*2+t*0.07;
+        lucMeshes[i].rotation.z=-angle-Math.PI/2;
+        const h=(i/LUC_N)*0.52+(sB>0.22?0:0.04);
+        lucMats[i].color.setHSL(h,1,0.48+lucSm[i]*0.24);
+        lucMats[i].opacity=0.35+lucSm[i]*0.6;
+      }
+      lucGrp.rotation.z+=0.0025+sB*0.009;
+      camera.position.set(Math.sin(t*0.095)*0.4,Math.cos(t*0.075)*0.35,7.5-sV*0.55);
+      camera.lookAt(0,0,0);
+      light1.intensity=2+sB*8; light2.intensity=2+sH*6;
+    }
+  }
+
+  // ══ 10 · PRACH ══
+  else if(currentViz===10){
+    dustBassSm+=(sB-dustBassSm)*0.042;
+    if(dustGeo){
+      const dp=dustGeo.attributes.position.array, dc=dustGeo.attributes.color.array;
+      const explode=1+dustBassSm*0.48;
+      for(let i=0;i<DUST_N;i++){
+        const ox=dustOrig[i*3],oy=dustOrig[i*3+1],oz=dustOrig[i*3+2];
+        const r=dustRad[i], ph=dustPhase[i];
+        const a0=Math.atan2(oz,ox);
+        const spin=t*0.025/Math.max(r*0.3,0.1);
+        dp[i*3]=r*explode*Math.cos(a0+spin)+Math.sin(t*0.28+ph)*0.055;
+        dp[i*3+1]=oy+Math.sin(ph+t*0.38)*0.038*sM;
+        dp[i*3+2]=r*explode*Math.sin(a0+spin)+Math.cos(t*0.23+ph)*0.055;
+        const heat=dustBassSm*0.38+0.18, normR=r/5;
+        dc[i*3]=heat*(1-normR*0.5); dc[i*3+1]=heat*normR*0.32; dc[i*3+2]=heat*normR*0.75;
+      }
+      dustGeo.attributes.position.needsUpdate=true;
+      dustGeo.attributes.color.needsUpdate=true;
+      dustMat.opacity=0.52+sV*0.28;
+      dustPts.rotation.y=t*0.018;
+    }
+    camera.position.set(Math.sin(t*0.075)*1.3,2.2+sB*0.7,5);
+    camera.lookAt(0,0,0);
+    light1.intensity=1+sB*6; light2.intensity=1+sH*4;
+  }
+
+  // ══ 11 · PRIZMA ══
+  else if(currentViz===11){
+    const sBands=[sB,sM,sH,sV,sB];
+    const speeds=[0.38,0.27,0.18,0.12,0.08];
+    const dirs=[1,-1,1,-1,1];
+    for(let i=0;i<priRings.length;i++){
+      priSm[i]+=(sBands[i]-priSm[i])*0.055;
+      priRings[i].rotation.y+=speeds[i]*dirs[i]*0.01;
+      priRings[i].rotation.x+=speeds[i]*0.007;
+      priMats[i].opacity=0.28+priSm[i]*0.58;
+      const sc=1+priSm[i]*0.14;
+      priRings[i].scale.setScalar(sc);
+      priMats[i].color.setHSL(i%2===0?0.04+sH*0.05:0.54-sB*0.04,1,0.5+priSm[i]*0.15);
+    }
+    if(priInner){
+      priInner.scale.setScalar(1+sB*0.42);
+      priInnerMat.emissive.setHSL(hue/360,1,0.38+sB*0.22);
+      priInnerMat.emissiveIntensity=0.55+sB*1.1;
+      priInner.rotation.x=t*0.5; priInner.rotation.y=t*0.7;
+    }
+    priGrp.rotation.y=t*0.04;
+    camera.position.set(Math.sin(t*0.1)*0.7,Math.cos(t*0.085)*0.55,6.5-sV*0.4);
+    camera.lookAt(0,0,0);
+    light1.intensity=3+sB*10; light2.intensity=3+sH*8; light3.intensity=2+sM*6; light4.intensity=2+sB*4;
+    light1.color.setHSL(0.04,1,0.6); light2.color.setHSL(0.54,1,0.6);
+  }
+
   renderer.render(scene,camera);
 }
 
 animate();
+
+// ═══════════════════════════════════
+// VIZ PANEL CONTROLS
+// ═══════════════════════════════════
+document.getElementById('btn-viz-toggle').addEventListener('click',function(){
+  const panel=document.getElementById('viz-panel');
+  panel.classList.toggle('open');
+  this.classList.toggle('active',panel.classList.contains('open'));
+});
+document.getElementById('viz-close-btn').addEventListener('click',function(){
+  document.getElementById('viz-panel').classList.remove('open');
+  document.getElementById('btn-viz-toggle').classList.remove('active');
+});
+document.querySelectorAll('.viz-card').forEach(card=>{
+  card.addEventListener('click',function(){
+    const idx=parseInt(this.dataset.viz);
+    setVizMode(idx);
+    document.getElementById('viz-panel').classList.remove('open');
+    document.getElementById('btn-viz-toggle').classList.remove('active');
+  });
+});
 </script>
 </body>
 </html>
